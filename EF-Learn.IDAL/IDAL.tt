@@ -1,0 +1,24 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ assembly name="$(SolutionDir)\EF-Learn.ModelFactory\bin\Debug\EF-Learn.ModelFactory.dll" #>
+<#@ import namespace="EF_Learn.ModelFactory" #>
+<#@ output extension=".cs" #>
+<# 
+	var type = typeof(ModelName);
+    var properties = type.GetProperties();
+#>
+using EF_Learn.Model;
+
+namespace EF_Learn.IDAL
+{
+<# 
+ foreach (var item in properties)
+ {
+    var name = item.Name.Replace("_", "");
+#>
+	public partial interface I<#= name #>Dal : IBaseDal<<#= item.Name #>> { }
+<#}#>
+}
