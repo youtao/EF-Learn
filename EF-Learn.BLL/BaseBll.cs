@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Threading.Tasks;
 using EF_Learn.Common.Model.QueryParam;
+using EF_Learn.Common.Tools;
 using EF_Learn.IDAL;
 using EF_Learn.ModelFactory;
 using Newtonsoft.Json;
@@ -93,40 +96,38 @@ namespace IIC.BLL
         /// <returns></returns>
         public int SoftDelete(int id)
         {
-            var entity = this.BaseDal.Single(e => e.Id == id);
-            entity.IsDeleted = true;
-            return this.DbContext.SaveChanges();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("update");
+            sb.AppendLine(" @Table");
+            sb.AppendLine("set");
+            sb.AppendLine(" IsDeleted = 1");
+            sb.AppendLine("where");
+            sb.AppendLine(" Id = @Id");
+            sb.AppendLine(";");
+            return this.DbContext.Database.ExecuteSqlCommand(sb.ToString(),
+                new SqlParameter("@Table", GetTableName()),
+                new SqlParameter("@Id", id));
         }
 
         /// <summary>
         /// 软删除
-        /// 返回-1:序列化失败
-        /// 返回0:删除失败
-        /// 返回>0:删除成功
         /// </summary>
-        /// <param name="ids">json:主键id</param>
+        /// <param name="id">json:主键id</param>
         /// <returns></returns>
-        public int SoftDelete(string ids)
+        public int SoftDelete(string id)
         {
-            List<int> list;
-            try
-            {
-                list = JsonConvert.DeserializeObject<List<int>>(ids);
-            }
-            catch (Exception)
-            {
-                return -1;
-            }
-            if (list.Count <= 0)
-            {
-                return -1;
-            }
-            var temp = this.Select(e => list.Contains(e.Id));
-            foreach (var item in temp)
-            {
-                item.IsDeleted = true;
-            }
-            return this.DbContext.SaveChanges();
+            id = id.Replace("\"", "").Replace("[", "(").Replace("]", ")");
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("update");
+            sb.AppendLine(" @Table");
+            sb.AppendLine("set");
+            sb.AppendLine(" IsDeleted = 1");
+            sb.AppendLine("where");
+            sb.AppendLine(" Id in @Id");
+            sb.AppendLine(";");
+            return this.DbContext.Database.ExecuteSqlCommand(sb.ToString(),
+                new SqlParameter("@Table", GetTableName()),
+                new SqlParameter("@Id", id));
         }
 
         /// <summary>
@@ -134,7 +135,7 @@ namespace IIC.BLL
         /// </summary>
         /// <param name="whereLambda"></param>        
         /// <returns></returns>
-        public int SoftDelete(Expression<Func<T, bool>> whereLambda)
+        public int SoftDelete(Expression<Func<T, bool>> whereLambda)//todo:
         {
             var temp = this.Select(whereLambda);
             foreach (var item in temp)
@@ -151,9 +152,17 @@ namespace IIC.BLL
         /// <returns></returns>
         public int SoftDelete(T entity)
         {
-            entity.IsDeleted = true;
-            this.BaseDal.Update(entity);
-            return this.BaseDal.DbContext.SaveChanges();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("update");
+            sb.AppendLine(" @Table");
+            sb.AppendLine("set");
+            sb.AppendLine(" IsDeleted = 1");
+            sb.AppendLine("where");
+            sb.AppendLine(" Id = @Id");
+            sb.AppendLine(";");
+            return this.DbContext.Database.ExecuteSqlCommand(sb.ToString(),
+                new SqlParameter("@Table", GetTableName()),
+                new SqlParameter("@Id", entity.Id));
         }
 
         #endregion
@@ -631,6 +640,15 @@ namespace IIC.BLL
                 param.PageSize = Convert.ToInt32(size);
             }
             param.PageSize = param.PageSize ?? 12;
+        }
+
+        /// <summary>
+        /// 获取表名
+        /// </summary>
+        /// <returns></returns>
+        private string GetTableName()
+        {
+            return this.DbContext.GetTableName<T>();
         }
 
         #endregion
