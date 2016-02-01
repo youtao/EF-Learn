@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace EF_Learn.Common.Tools
 {
-    public static class StringHelper
+    public static class StringExtensions
     {
         /// <summary>
         /// 替换字符串中的HTML标签

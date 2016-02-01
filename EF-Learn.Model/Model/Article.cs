@@ -8,8 +8,7 @@ namespace EF_Learn.Model
     public class Article : BaseModel
     {
         public Article()
-        {
-            this.Description = this.Content.ReplaceHtmlTag();
+        {            
         }
 
         /// <summary>
