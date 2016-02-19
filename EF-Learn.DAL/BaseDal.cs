@@ -31,7 +31,7 @@ namespace EF_Learn.DAL
         /// <returns></returns>
         public void Add(T model)
         {
-            this.DbContext.Set<T>().Add(model);
+            this.DbContext.Set<T>().Add(model);            
         }
 
         /// <summary>

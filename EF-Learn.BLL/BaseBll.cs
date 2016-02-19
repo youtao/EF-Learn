@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using EF_Learn.Common.Model.QueryParam;
 using EF_Learn.Common.Tools;
 using EF_Learn.IDAL;
+using EF_Learn.Model;
 using EF_Learn.ModelFactory;
 using Newtonsoft.Json;
 
@@ -137,7 +138,7 @@ namespace IIC.BLL
         /// <returns></returns>
         public int SoftDelete(Expression<Func<T, bool>> whereLambda)//todo:
         {
-            var temp = this.Select(whereLambda);
+            var temp = this.Select(whereLambda);            
             foreach (var item in temp)
             {
                 item.IsDeleted = true;
@@ -649,6 +650,11 @@ namespace IIC.BLL
         private string GetTableName()
         {
             return this.DbContext.GetTableName<T>();
+        }
+
+        public void PP()
+        {
+           
         }
 
         #endregion

@@ -70,9 +70,6 @@ namespace EF_Learn.IBLL
 
         /// <summary>
         /// 软删除
-        /// 返回-1:序列化失败
-        /// 返回0:删除失败
-        /// 返回>0:删除成功
         /// </summary>
         /// <param name="ids">json:主键id</param>
         /// <returns></returns>
